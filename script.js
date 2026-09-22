@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  var C = window.CONFIG;
+  var C = window.CONFIG, TX = window.TX;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var num = function (n) { return Number(n).toLocaleString('ar-EG'); };
@@ -11,21 +11,6 @@
   var q = new URLSearchParams(location.search);
   var src = ['utm_source', 'utm_campaign', 'utm_content'].map(function (k) { return q.get(k); }).filter(Boolean).join('|') || (q.get('fbclid') ? 'fb' : 'direct');
 
-  /* ---------- التتبع ---------- */
-  if (C.pixelId) {
-    (function (f, b, e, v) { if (f.fbq) return; var n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); }; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = []; var t = b.createElement(e); t.async = true; t.src = v; b.head.appendChild(t); })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', C.pixelId); fbq('track', 'PageView');
-  }
-  if (C.clarityId) {
-    (function (c, l, a, r, i) { c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); }; var t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i; l.head.appendChild(t); })(window, document, 'clarity', 'script', C.clarityId);
-  }
-  var track = function (e, d, id) { try { if (window.fbq) fbq('track', e, d || {}, id ? { eventID: id } : undefined); } catch (x) {} };
-  var send = function (d) {
-    if (!C.appsScriptUrl) { console.warn('appsScriptUrl فاضي، الطلب مش هيتسجل:', d); return Promise.resolve(); }
-    return fetch(C.appsScriptUrl, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) });
-  };
-
-  /* ---------- نصوص ثابتة من الإعدادات ---------- */
   $$('[data-brand]').forEach(function (e) { e.textContent = C.brand; });
   $$('[data-warranty]').forEach(function (e) { e.textContent = num(C.warrantyDays); });
   $$('[data-delivery]').forEach(function (e) { e.textContent = C.delivery; });
@@ -39,17 +24,22 @@
   requestAnimationFrame(function () { $('#stockBar').style.width = Math.max(4, stock / total * 100) + '%'; });
 
   /* ---------- الأسعار ---------- */
-  var offers = C.offers, o0 = offers[0];
+  var offers = C.offers, o0 = offers[0], addon = C.addon;
   var pct = function (o) { return o.old ? Math.round((1 - o.price / o.old) * 100) : 0; };
   $('#price').textContent = fmt(o0.price);
   $('#old').textContent = o0.old ? fmt(o0.old) : '';
-  if (pct(o0)) { var b = $('#discBadge'); b.textContent = 'خصم ' + num(pct(o0)) + '٪'; b.hidden = false; }
+  if (pct(o0)) { var bd = $('#discBadge'); bd.textContent = 'خصم ' + num(pct(o0)) + '٪'; bd.hidden = false; }
   var free = offers.filter(function (o) { return !o.ship; })[0];
   var freeTxt = free ? (free.qty === 2 ? 'قطعتين' : num(free.qty) + ' قطع') : '';
   $('#shipnote').textContent = o0.ship ? '+ شحن ' + fmt(o0.ship) + (free ? ' · مجاني لو طلبت ' + freeTxt + ' أو أكتر' : '') : 'شحن مجاني';
-  $('#faqShip').textContent = o0.ship ? 'الشحن ' + fmt(o0.ship) + ' للقطعة الواحدة' + (free ? '، ومجاني لو طلبت ' + freeTxt + ' أو أكتر.' : '.') : 'الشحن مجاني.';
+  $('#faqShip').textContent = o0.ship ? 'الشحن ' + fmt(o0.ship) + ' للقطعة الواحدة' + (free ? '، ومجاني لو طلبت ' + freeTxt + ' أو أكتر، وكمان مجاني لو ضفت باور بانك.' : '.') : 'الشحن مجاني.';
 
-  /* ---------- العداد (لعرض حقيقي) ---------- */
+  if (addon) {
+    $('#addonPrice').textContent = fmt(addon.price);
+    if (addon.old) $('#addonOld').textContent = fmt(addon.old);
+  } else { $('#addonBox').hidden = true; }
+
+  /* ---------- العداد ---------- */
   var end = new Date(C.offerEnds).getTime(), timer;
   function tick() {
     var d = end - Date.now();
@@ -74,9 +64,8 @@
   }
 
   /* ---------- الفيديو ---------- */
-  var v = $('#vid'), vb = $('#vplay');
+  var v = $('#vid'), vb = $('#vplay'), vs = $('#vsound');
   function vPlay() { var p = v.play(); if (p && p.then) p.then(function () { vb.classList.add('hide'); }).catch(function () { vb.classList.remove('hide'); }); }
-  var vs = $('#vsound');
   vs.addEventListener('click', function () { v.muted = !v.muted; vs.querySelector('use').setAttribute('href', v.muted ? '#i-mute' : '#i-sound'); vs.setAttribute('aria-label', v.muted ? 'تشغيل الصوت' : 'كتم الصوت'); if (v.paused) vPlay(); });
   vb.addEventListener('click', function () { vPlay(); });
   v.addEventListener('click', function () { if (v.paused) vPlay(); else { v.pause(); vb.classList.remove('hide'); } });
@@ -101,7 +90,6 @@
   $('#offers').insertAdjacentHTML('beforeend', offers.map(function (o, i) {
     var dis = o.qty > stock;
     if (!dis && firstOk < 0) firstOk = i;
-    var pc = pct(o);
     return '<label class="offer' + (dis ? ' dis' : '') + '"><input type="radio" name="offer" value="' + i + '"' + (dis ? ' disabled' : '') + '><span class="dot"></span>' +
       '<span class="t"><span>' + esc(o.label) + '</span>' + (o.badge ? '<em>' + esc(o.badge) + '</em>' : '') + '</span>' +
       '<span class="p"><b>' + fmt(o.price) + '</b>' + (o.old ? '<s>' + fmt(o.old) + '</s>' : '') + '</span></label>';
@@ -109,47 +97,86 @@
   var radios = $$('[name=offer]', f);
   if (firstOk >= 0) radios[firstOk].checked = true;
   var sel = function () { var r = radios.filter(function (x) { return x.checked; })[0]; return offers[r ? +r.value : 0]; };
-  function upd() {
-    var o = sel();
-    radios.forEach(function (r) { r.closest('.offer').classList.toggle('on', r.checked); });
-    $('#sPrice').textContent = fmt(o.price);
-    $('#sShip').textContent = o.ship ? fmt(o.ship) : 'مجاني';
-    $('#sTotal').textContent = fmt(o.price + o.ship);
-    $('#stickyPrice').textContent = fmt(o.price + o.ship);
+  var addonChk = $('#addonChk');
+
+  function calc() {
+    var o = sel(), addonOn = addon && addonChk.checked;
+    var ship = o.ship;
+    if (addonOn && addon.freeShipWithIt) ship = 0;
+    var itemsTotal = o.price + (addonOn ? addon.price : 0);
+    return { o: o, addonOn: addonOn, ship: ship, itemsTotal: itemsTotal, total: itemsTotal + ship };
   }
-  f.addEventListener('change', upd); upd();
-  if (stock <= 0) { var go0 = $('#go'); go0.disabled = true; go0.textContent = 'الكمية خلصت حاليًا'; }
+  function upd() {
+    radios.forEach(function (r) { r.closest('.offer').classList.toggle('on', r.checked); });
+    var c = calc();
+    $('#sPrice').textContent = fmt(c.itemsTotal);
+    $('#sShip').textContent = c.ship ? fmt(c.ship) : 'مجاني';
+    $('#sTotal').textContent = fmt(c.total);
+    $('#stickyPrice').textContent = fmt(c.total);
+    $('#rcOffer').textContent = c.o.label + (c.addonOn ? ' + باور بانك' : '');
+    $('#rcTotal').textContent = fmt(c.total);
+  }
+  f.addEventListener('change', upd);
+  addonChk.addEventListener('change', upd);
+  upd();
+  if (stock <= 0) { $('#next').disabled = true; $('#next').textContent = 'الكمية خلصت حاليًا'; }
+
+  /* ---------- خطوتين ---------- */
+  var step1 = $('#step1'), step2 = $('#step2'), st1 = $('#st1'), st2 = $('#st2');
+  function goStep(n) {
+    step1.hidden = n !== 1; step2.hidden = n !== 2;
+    st1.classList.toggle('on', n === 1); st2.classList.toggle('on', n === 2);
+    if (n === 2) { upd(); $('#gov').focus({ preventScroll: true }); }
+    $('#order').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function setErr(id, msg) { $('#e-' + id).textContent = msg || ''; }
+  function val(id) { return f.elements[id].value.trim(); }
 
   var started = false, leadSent = false;
-  f.addEventListener('focusin', function () { if (!started) { started = true; track('InitiateCheckout', { currency: 'EGP', value: sel().price }); } });
-  // تسجيل Lead أول ما الرقم يتكتب صح حتى لو العميل مكملش الطلب
-  f.elements.phone.addEventListener('change', function () {
-    var p = digits(f.elements.phone.value.trim());
-    if (okPhone(p) && !leadSent) { leadSent = true; send({ type: 'lead', name: f.elements.fullname.value, phone: p, src: src }); track('Lead'); }
+  function maybeLead() {
+    var p = digits(val('phone'));
+    if (okPhone(p) && !leadSent) { leadSent = true; TX.send({ type: 'lead', name: val('fullname'), phone: p, src: src }); TX.track('Lead'); }
+  }
+  f.elements.fullname.addEventListener('focus', function () { if (!started) { started = true; TX.track('InitiateCheckout', { currency: 'EGP', value: calc().total }); } });
+  f.elements.phone.addEventListener('change', maybeLead);
+
+  $('#next').addEventListener('click', function () {
+    setErr('name'); setErr('phone');
+    var name = val('fullname'), phone = digits(val('phone'));
+    var ok = true;
+    if (name.length < 3) { setErr('name', 'اكتب اسمك بالكامل'); ok = false; }
+    if (!okPhone(phone)) { setErr('phone', 'اكتب رقم موبايل صحيح من ١١ رقم'); ok = false; }
+    if (!ok) return;
+    maybeLead();
+    goStep(2);
   });
+  $('#edit').addEventListener('click', function () { goStep(1); });
+  $('#back').addEventListener('click', function () { goStep(1); });
 
   f.addEventListener('submit', function (e) {
     e.preventDefault();
-    var el = f.elements, phone = digits(el.phone.value.trim()), name = el.fullname.value.trim(), addr = el.address.value.trim(), err = $('#err');
-    err.textContent = '';
-    if (el.hp.value || stock <= 0) return;
-    if (name.length < 3) { err.textContent = 'اكتب اسمك بالكامل'; return; }
-    if (!okPhone(phone)) { err.textContent = 'اكتب رقم موبايل صحيح من ١١ رقم'; return; }
-    if (!el.gov.value) { err.textContent = 'اختار المحافظة'; return; }
-    if (addr.length < 8) { err.textContent = 'اكتب العنوان بالتفصيل'; return; }
-    var o = sel(), tot = o.price + o.ship, id = 'TX' + Date.now().toString(36).toUpperCase(), btn = $('#go');
-    var coupon = o.coupon ? 'NEXT-' + Math.random().toString(36).slice(2, 7).toUpperCase() : '';
-    btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';
-    send({ type: 'order', id: id, name: name, phone: phone, gov: el.gov.value, address: addr, offer: o.label, qty: o.qty, ship: o.ship, total: tot, coupon: coupon, src: src })
+    setErr('gov'); setErr('address'); $('#err').textContent = '';
+    if (f.elements.hp.value || stock <= 0) return;
+    var gov = val('gov'), addr = val('address'), ok = true;
+    if (!gov) { setErr('gov', 'اختار المحافظة'); ok = false; }
+    if (addr.length < 8) { setErr('address', 'اكتب العنوان بالتفصيل'); ok = false; }
+    if (!ok) return;
+
+    var name = val('fullname'), phone = digits(val('phone')), c = calc();
+    var id = 'TX' + Date.now().toString(36).toUpperCase();
+    var coupon = c.o.coupon ? 'NEXT-' + Math.random().toString(36).slice(2, 7).toUpperCase() : '';
+    var btn = $('#go'); btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';
+
+    var offerLabel = c.o.label + (c.addonOn ? ' + باور بانك G Star' : '');
+    TX.send({ type: 'order', id: id, name: name, phone: phone, gov: gov, address: addr, offer: offerLabel, qty: c.o.qty, addon: c.addonOn ? 1 : 0, ship: c.ship, total: c.total, coupon: coupon, src: src })
       .then(function () {
-        track('Purchase', { value: tot, currency: 'EGP', content_name: 'شنطة كروس ضد السرقة', num_items: o.qty }, id);
-        f.outerHTML = '<div class="thanks" role="status"><h3>تم استلام طلبك ✅</h3><p>رقم الطلب: <b>' + id + '</b></p><p>هنتصل بيك على ' + esc(phone) + ' لتأكيد الطلب قبل الشحن. خلّي موبايلك متاح.</p>' +
-          (coupon ? '<div class="coupon">' + esc(C.couponText) + '<br><b>' + coupon + '</b><br><small>احتفظ بالكود، هتحتاجه في طلبك الجاي.</small></div>' : '') + '</div>';
-        $('#order').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var p = new URLSearchParams({ id: id, total: c.total, offer: offerLabel, phone: phone });
+        if (coupon) p.set('coupon', coupon);
+        location.href = 'thanks.html?' + p.toString();
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = 'تأكيد الطلب';
-        err.textContent = 'حصلت مشكلة في الاتصال. تأكد من النت وجرّب تاني.';
+        $('#err').textContent = 'حصلت مشكلة في الاتصال. تأكد من النت وجرّب تاني.';
       });
   });
 
@@ -174,14 +201,14 @@
     e.preventDefault();
     var el = e.target.elements;
     if (el.rname.value.trim().length < 2 || el.rtext.value.trim().length < 5) return;
-    send({ type: 'review', name: el.rname.value, stars: el.stars.value, text: el.rtext.value });
+    TX.send({ type: 'review', name: el.rname.value, stars: el.stars.value, text: el.rtext.value });
     e.target.outerHTML = '<p class="muted">شكرًا لتقييمك. هيظهر بعد المراجعة.</p>';
   });
 
-  /* ---------- الشريط الثابت: يختفي لما الفورم على الشاشة ---------- */
+  /* ---------- الشريط الثابت ---------- */
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) { $('#sticky').classList.toggle('off', es[0].isIntersecting); }, { threshold: .12 }).observe($('#order'));
   }
-  $$('[data-cta]').forEach(function (a) { a.addEventListener('click', function () { track('AddToCart', { currency: 'EGP', value: o0.price }); }); });
-  track('ViewContent', { content_name: 'شنطة كروس ضد السرقة', currency: 'EGP', value: o0.price });
+  $$('[data-cta]').forEach(function (a) { a.addEventListener('click', function () { TX.track('AddToCart', { currency: 'EGP', value: o0.price }); }); });
+  TX.track('ViewContent', { content_name: 'شنطة كروس ضد السرقة', currency: 'EGP', value: o0.price });
 })();

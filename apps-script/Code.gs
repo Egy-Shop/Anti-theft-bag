@@ -1,6 +1,6 @@
 const SS = SpreadsheetApp.getActiveSpreadsheet();
 const HEAD = {
-  Orders: ['التاريخ','رقم الطلب','الاسم','التليفون','المحافظة','العنوان','العرض','الكمية','الشحن','الإجمالي','الحالة','المصدر','الكوبون'],
+  Orders: ['التاريخ','رقم الطلب','الاسم','التليفون','المحافظة','العنوان','العرض','الكمية','باور بانك','الشحن','الإجمالي','الحالة','المصدر','الكوبون'],
   Leads: ['التاريخ','الاسم','التليفون','المصدر','اتحوّل لأوردر؟'],
   Reviews: ['التاريخ','الاسم','التقييم','التعليق','موافق']
 };
@@ -46,7 +46,7 @@ function order_(d) {
   const s = sheet_('Orders');
   if (recentPhone_(s, 3, d.phone, 10, 50)) return; // منع التكرار
   s.appendRow([new Date(), clean_(d.id, 30), clean_(d.name, 80), "'" + d.phone, clean_(d.gov, 40),
-    clean_(d.address, 250), clean_(d.offer, 60), Number(d.qty) || 1, Number(d.ship) || 0,
+    clean_(d.address, 250), clean_(d.offer, 60), Number(d.qty) || 1, (d.addon ? 'أيوه' : 'لأ'), Number(d.ship) || 0,
     Number(d.total) || 0, 'جديد', clean_(d.src, 120), clean_(d.coupon, 20)]);
   const r = s.getLastRow();
   s.getRange(r, 11).setDataValidation(SpreadsheetApp.newDataValidation()

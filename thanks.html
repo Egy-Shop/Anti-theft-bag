@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>تم استلام طلبك | ترنديكس</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol></defs>
+</svg>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <a class="logo" href="index.html" aria-label="ترنديكس"><img src="assets/img/logo-mark.png" width="38" height="38" alt=""><span data-brand>ترنديكس</span></a>
+  </div>
+</header>
+
+<main class="tk">
+  <div class="wrap narrow">
+    <div class="tk-box">
+      <div class="tk-check"><svg class="ic"><use href="#i-check"/></svg></div>
+      <h1>تم استلام طلبك</h1>
+      <p>هنتصل بيك على <b id="phoneOut"></b> لتأكيد الطلب قبل الشحن. خلّي موبايلك متاح.</p>
+      <div class="tk-id">رقم الطلب: <span id="idOut"></span></div>
+
+      <div class="tk-sum">
+        <div class="row"><span>الطلب</span><span id="offerOut"></span></div>
+        <div class="row tot"><span>الإجمالي عند الاستلام</span><span id="totalOut"></span></div>
+      </div>
+
+      <div class="tk-coupon" id="couponBox" hidden>
+        <span id="couponLabel"></span><br>
+        <b id="couponOut"></b><br>
+        <small>احتفظ بالكود، هتحتاجه في طلبك الجاي.</small>
+      </div>
+
+      <a class="btn btn-lg" href="index.html">رجوع للصفحة الرئيسية</a>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-brand"><img src="assets/img/logo-mark.png" width="32" height="32" alt=""><b data-brand>ترنديكس</b></div>
+    <p>ضمان <span data-warranty></span> يوم استبدال واسترجاع · الدفع عند الاستلام</p>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="tracking.js"></script>
+<script>
+(function () {
+  var C = window.CONFIG, TX = window.TX;
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  $$('[data-brand]').forEach(function (e) { e.textContent = C.brand; });
+  $$('[data-warranty]').forEach(function (e) { e.textContent = Number(C.warrantyDays).toLocaleString('ar-EG'); });
+
+  var q = new URLSearchParams(location.search);
+  var id = q.get('id'), total = q.get('total'), offer = q.get('offer'), phone = q.get('phone'), coupon = q.get('coupon');
+
+  // لو الصفحة اتفتحت من غير بيانات طلب (زيارة مباشرة)، رجّعه للرئيسية بدل ما يشوف صفحة فاضية
+  if (!id || !total) { location.replace('index.html'); return; }
+
+  $('#idOut').textContent = id;
+  $('#offerOut').textContent = offer || '';
+  $('#totalOut').textContent = Number(total).toLocaleString('ar-EG') + ' ج.م';
+  $('#phoneOut').textContent = phone || '';
+  if (coupon) {
+    $('#couponBox').hidden = false;
+    $('#couponLabel').textContent = C.couponText || 'كوبون خصم على طلبك الجاي';
+    $('#couponOut').textContent = coupon;
+  }
+
+  TX.track('Purchase', { value: Number(total), currency: 'EGP', content_name: 'شنطة كروس ضد السرقة' }, id);
+})();
+</script>
+</body>
+</html>
