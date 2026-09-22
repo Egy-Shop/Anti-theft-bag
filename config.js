@@ -9,7 +9,7 @@ window.CONFIG = {
   /* ================================== */
 
   returnUrl: 'https://www.jawdaonline.com/egy-request', // لينك الاستبدال والاسترجاع
-  facebookUrl: '',     // لينك صفحتك على فيسبوك (اختياري)
+  facebookUrl: 'https://www.facebook.com/trendex.egypt', // لينك صفحتك على فيسبوك
 
   offerHours: 24, // مدة العرض لكل زائر (٢٤ ساعة) — بيتجدد تلقائي لو رجع بعد ما تنتهي مدته
 

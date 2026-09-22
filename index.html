@@ -52,6 +52,7 @@
     <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></symbol>
     <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-fb" viewBox="0 0 24 24"><path d="M14 8.5h2.5V5.2h-2.5C11.7 5.2 10 6.9 10 9.2v2.3H7.5v3.3H10V19h3.3v-4.2h2.5l.5-3.3h-3v-1.8c0-.9.4-1.2 1.2-1.2z" fill="currentColor" stroke="none"/></symbol>
   </defs>
 </svg>
 
@@ -60,7 +61,10 @@
 <header class="hdr">
   <div class="wrap hdr-in">
     <a class="logo" href="#top" aria-label="ترنديكس"><img src="assets/img/logo-mark.png" width="38" height="38" alt=""><span data-brand>ترنديكس</span></a>
-    <a class="btn btn-sm" href="#order" data-cta>اطلب الآن</a>
+    <div class="hdr-actions">
+      <a class="icon-link" id="fbIcon" href="#" target="_blank" rel="noopener" aria-label="صفحتنا على فيسبوك" hidden><svg class="ic"><use href="#i-fb"/></svg></a>
+      <a class="btn btn-sm" href="#order" data-cta>اطلب الآن</a>
+    </div>
   </div>
 </header>
 
@@ -305,7 +309,7 @@
   <div class="wrap">
     <div class="foot-brand"><img src="assets/img/logo-mark.png" width="32" height="32" alt=""><b data-brand>ترنديكس</b></div>
     <p>ضمان <span data-warranty></span> يوم استبدال واسترجاع · الدفع عند الاستلام</p>
-    <p class="flinks"><a id="fRet" href="#" target="_blank" rel="noopener" hidden>الاستبدال والاسترجاع</a><a id="fFb" href="#" target="_blank" rel="noopener" hidden>صفحتنا على فيسبوك</a></p>
+    <p class="flinks"><a id="fRet" href="#" target="_blank" rel="noopener" hidden>الاستبدال والاسترجاع</a><a id="fFb" class="icon-link-inline" href="#" target="_blank" rel="noopener" hidden><svg class="ic"><use href="#i-fb"/></svg> صفحتنا على فيسبوك</a></p>
   </div>
 </footer>
 

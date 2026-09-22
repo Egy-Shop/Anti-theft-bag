@@ -15,7 +15,7 @@
   $$('[data-warranty]').forEach(function (e) { e.textContent = num(C.warrantyDays); });
   $$('[data-delivery]').forEach(function (e) { e.textContent = C.delivery; });
   if (C.returnUrl) { ['#retBtn', '#fRet'].forEach(function (s) { var a = $(s); a.href = C.returnUrl; a.hidden = false; }); }
-  if (C.facebookUrl) { var fb = $('#fFb'); fb.href = C.facebookUrl; fb.hidden = false; }
+  if (C.facebookUrl) { ['#fFb', '#fbIcon'].forEach(function (s) { var a = $(s); a.href = C.facebookUrl; a.hidden = false; }); }
 
   /* ---------- المخزون ---------- */
   var stock = Math.max(0, +C.stock || 0), total = Math.max(stock, +C.stockTotal || stock || 1);
