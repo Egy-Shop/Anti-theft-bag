@@ -39,11 +39,21 @@
     if (addon.old) $('#addonOld').textContent = fmt(addon.old);
   } else { $('#addonBox').hidden = true; }
 
-  /* ---------- العداد ---------- */
-  var end = new Date(C.offerEnds).getTime(), timer;
+  /* ---------- العداد: ٢٤ ساعة لكل زائر، بيتجدد لو رجع بعد ما تنتهي ---------- */
+  var offerHours = C.offerHours || 24, offerMs = offerHours * 36e5, timer;
+  var start;
+  try {
+    start = +localStorage.getItem('tx_offer_start');
+    if (!start || Date.now() - start > offerMs) { start = Date.now(); localStorage.setItem('tx_offer_start', start); }
+  } catch (x) { start = Date.now(); }
+  var end = start + offerMs;
   function tick() {
     var d = end - Date.now();
-    if (!(d > 0)) { $('#cdWrap').hidden = true; clearInterval(timer); return; }
+    if (!(d > 0)) {
+      start = Date.now(); end = start + offerMs;
+      try { localStorage.setItem('tx_offer_start', start); } catch (x) {}
+      d = offerMs;
+    }
     var p = function (n) { return String(n).padStart(2, '0'); }, days = Math.floor(d / 864e5);
     $('#cd').innerHTML = (days ? num(days) + ' يوم و ' : '') + '<span dir="ltr">' + [Math.floor(d % 864e5 / 36e5), Math.floor(d % 36e5 / 6e4), Math.floor(d % 6e4 / 1e3)].map(p).join(':') + '</span>';
   }
@@ -167,7 +177,7 @@
     var coupon = c.o.coupon ? 'NEXT-' + Math.random().toString(36).slice(2, 7).toUpperCase() : '';
     var btn = $('#go'); btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';
 
-    var offerLabel = c.o.label + (c.addonOn ? ' + باور بانك G Star' : '');
+    var offerLabel = c.o.label + (c.addonOn ? ' + ' + (addon.name || 'باور بانك') : '');
     TX.send({ type: 'order', id: id, name: name, phone: phone, gov: gov, address: addr, offer: offerLabel, qty: c.o.qty, addon: c.addonOn ? 1 : 0, ship: c.ship, total: c.total, coupon: coupon, src: src })
       .then(function () {
         var p = new URLSearchParams({ id: id, total: c.total, offer: offerLabel, phone: phone });
