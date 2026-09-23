@@ -3,8 +3,8 @@ window.CONFIG = {
   brand: 'ترنديكس',
 
   /* ===== 🔌 الربط (لسه هيتعمل) ===== */
-  appsScriptUrl: '',   // رابط Web App بتاع Apps Script. لو فاضي الصفحة بتشتغل في وضع تجريبي والطلبات مش بتتسجل
-  pixelId: '',         // Meta Pixel ID
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbywuwgQ6SAFefwTcLi4YVZxwhtwjIneypIndRNfc9ir2Az2Jj-u6D4Fx54h-afsGNv5/exec',
+  pixelId: '2336877170545138', // Meta Pixel ID
   clarityId: '',       // Microsoft Clarity ID (هيت ماب وتسجيلات الشاشة)
   /* ================================== */
 

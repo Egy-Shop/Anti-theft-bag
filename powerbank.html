@@ -47,8 +47,16 @@
       <span class="badge" id="discBadge">خصم 50٪</span>
       <div class="slides" id="slides">
         <figure class="slide fit white"><img src="assets/img/pb-clean-500.webp" width="500" height="500" alt="باور بانك G Star 10000 مللي أمبير" fetchpriority="high" decoding="async"></figure>
+        <figure class="slide fit white"><img src="assets/img/pb-black-700.webp" width="700" height="700" alt="باور بانك G Star باللون الأسود" loading="lazy" decoding="async"></figure>
+        <figure class="slide"><img src="assets/img/pb-charging-700.webp" width="700" height="700" alt="الباور بانك وهو بيشحن أكتر من جهاز" loading="lazy" decoding="async"></figure>
+        <figure class="slide"><img src="assets/img/pb-pair-700.webp" width="700" height="700" alt="الباور بانك مع كابل الشحن الشامل" loading="lazy" decoding="async"></figure>
       </div>
-      <!-- عندك صور تانية للباور بانك (أسود، وهو بيشحن، صورة مواصفات)؟ كرر نفس شكل الـ figure ده فوق وحط اسم الصورة، وأضف thumbnail مقابل له تحت في #thumbs -->
+      <div class="thumbs" id="thumbs" aria-label="صور الباور بانك">
+        <button class="on" type="button" aria-label="صورة 1"><img src="assets/img/pb-clean-500.webp" alt="" width="56" height="56"></button>
+        <button type="button" aria-label="صورة 2"><img src="assets/img/pb-black-700.webp" alt="" width="56" height="56" loading="lazy"></button>
+        <button type="button" aria-label="صورة 3"><img src="assets/img/pb-charging-700.webp" alt="" width="56" height="56" loading="lazy"></button>
+        <button type="button" aria-label="صورة 4"><img src="assets/img/pb-pair-700.webp" alt="" width="56" height="56" loading="lazy"></button>
+      </div>
     </div>
 
     <div class="hero-copy">
@@ -62,6 +70,7 @@
         <li><i><svg class="ic"><use href="#i-check"/></svg></i>يتوافق مع Android و iPhone</li>
         <li><i><svg class="ic"><use href="#i-check"/></svg></i>حماية كاملة من الشحن الزائد والسخونة</li>
         <li><i><svg class="ic"><use href="#i-check"/></svg></i>تصميم خفيف ومتين بألوان أسود/أبيض</li>
+        <li><i><svg class="ic"><use href="#i-check"/></svg></i>حجم عملي مناسب للسفر وسهل الحمل</li>
       </ul>
     </div>
   </div>
@@ -136,6 +145,20 @@
       location.href = 'index.html#order';
     });
   });
+
+  /* ---------- معرض الصور ---------- */
+  var slides = $$('.slide'), thumbs = $$('#thumbs button'), box = $('#slides');
+  thumbs.forEach(function (t, i) {
+    t.addEventListener('click', function () { slides[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); });
+  });
+  if ('IntersectionObserver' in window) {
+    var gio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { var i = slides.indexOf(e.target); thumbs.forEach(function (t, k) { t.classList.toggle('on', k === i); }); }
+      });
+    }, { root: box, threshold: .6 });
+    slides.forEach(function (s) { gio.observe(s); });
+  }
 
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) { $('#sticky').classList.toggle('off', es[0].isIntersecting); }, { threshold: .1 }).observe($('.hero .btn-lg'));
