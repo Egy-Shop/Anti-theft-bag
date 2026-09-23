@@ -35,9 +35,8 @@
   $('#faqShip').textContent = o0.ship ? 'الشحن ' + fmt(o0.ship) + ' للقطعة الواحدة' + (free ? '، ومجاني لو طلبت ' + freeTxt + ' أو أكتر، وكمان مجاني لو ضفت باور بانك.' : '.') : 'الشحن مجاني.';
 
   if (addon) {
-    $('#addonPrice').textContent = fmt(addon.price);
-    if (addon.old) $('#addonOld').textContent = fmt(addon.old);
-  } else { $('#addonBox').hidden = true; }
+    $('#toastPrice').textContent = fmt(addon.price) + (addon.old ? ' بدل ' + fmt(addon.old) : '') + (addon.freeShipWithIt ? ' + شحن مجاني' : '');
+  }
 
   /* ---------- العداد: ٢٤ ساعة لكل زائر، بيتجدد لو رجع بعد ما تنتهي ---------- */
   var offerHours = C.offerHours || 24, offerMs = offerHours * 36e5, timer;
@@ -104,41 +103,61 @@
       '<span class="t"><span>' + esc(o.label) + '</span>' + (o.badge ? '<em>' + esc(o.badge) + '</em>' : '') + '</span>' +
       '<span class="p"><b>' + fmt(o.price) + '</b>' + (o.old ? '<s>' + fmt(o.old) + '</s>' : '') + '</span></label>';
   }).join(''));
-  var radios = $$('[name=offer]', f);
+  var radios = $$('[name=offer]');
   if (firstOk >= 0) radios[firstOk].checked = true;
   var sel = function () { var r = radios.filter(function (x) { return x.checked; })[0]; return offers[r ? +r.value : 0]; };
-  var addonChk = $('#addonChk');
+  var addonOn = false, addonPre = false;
+  if (addon) {
+    try {
+      if (localStorage.getItem('tx_addon_wanted') === '1') { addonOn = true; addonPre = true; localStorage.removeItem('tx_addon_wanted'); }
+    } catch (x) {}
+  }
 
   function calc() {
-    var o = sel(), addonOn = addon && addonChk.checked;
+    var o = sel(), on = addon && addonOn;
     var ship = o.ship;
-    if (addonOn && addon.freeShipWithIt) ship = 0;
-    var itemsTotal = o.price + (addonOn ? addon.price : 0);
-    return { o: o, addonOn: addonOn, ship: ship, itemsTotal: itemsTotal, total: itemsTotal + ship };
+    if (on && addon.freeShipWithIt) ship = 0;
+    var itemsTotal = o.price + (on ? addon.price : 0);
+    return { o: o, addonOn: on, ship: ship, itemsTotal: itemsTotal, total: itemsTotal + ship };
   }
   function upd() {
     radios.forEach(function (r) { r.closest('.offer').classList.toggle('on', r.checked); });
     var c = calc();
-    $('#sPrice').textContent = fmt(c.itemsTotal);
+    $('#sPrice').textContent = fmt(c.o.price);
+    $('#sAddonRow').hidden = !c.addonOn;
+    if (c.addonOn) $('#sAddonPrice').textContent = fmt(addon.price);
     $('#sShip').textContent = c.ship ? fmt(c.ship) : 'مجاني';
     $('#sTotal').textContent = fmt(c.total);
     $('#stickyPrice').textContent = fmt(c.total);
-    $('#rcOffer').textContent = c.o.label + (c.addonOn ? ' + باور بانك' : '');
-    $('#rcTotal').textContent = fmt(c.total);
   }
-  f.addEventListener('change', upd);
-  addonChk.addEventListener('change', upd);
+  radios.forEach(function (r) { r.addEventListener('change', upd); });
   upd();
-  if (stock <= 0) { $('#next').disabled = true; $('#next').textContent = 'الكمية خلصت حاليًا'; }
+  if (stock <= 0) { $('#go').disabled = true; $('#go').textContent = 'الكمية خلصت حاليًا'; }
 
-  /* ---------- خطوتين ---------- */
-  var step1 = $('#step1'), step2 = $('#step2'), st1 = $('#st1'), st2 = $('#st2');
-  function goStep(n) {
-    step1.hidden = n !== 1; step2.hidden = n !== 2;
-    st1.classList.toggle('on', n === 1); st2.classList.toggle('on', n === 2);
-    if (n === 2) { upd(); $('#gov').focus({ preventScroll: true }); }
-    $('#order').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* ---------- نوتفكيشن الباور بانك: بتظهر مرة واحدة بهدوء لما العميل يوصل لفورم الطلب ---------- */
+  if (addon) {
+    var toast = $('#pbToast'), pbShown = addonPre;
+    function showToast() {
+      if (pbShown || addonOn) return;
+      pbShown = true;
+      toast.hidden = false;
+      requestAnimationFrame(function () { toast.classList.add('show'); });
+    }
+    function hideToast() {
+      toast.classList.remove('show');
+      setTimeout(function () { toast.hidden = true; }, 250);
+    }
+    if ('IntersectionObserver' in window) {
+      var pbIo = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { showToast(); pbIo.disconnect(); }
+      }, { threshold: .2 });
+      pbIo.observe($('#order'));
+    }
+    $('#pbAdd').addEventListener('click', function () { addonOn = true; hideToast(); upd(); });
+    $('#pbClose').addEventListener('click', hideToast);
+    $('#sAddonRemove').addEventListener('click', function () { addonOn = false; upd(); });
   }
+
   function setErr(id, msg) { $('#e-' + id).textContent = msg || ''; }
   function val(id) { return f.elements[id].value.trim(); }
 
@@ -150,29 +169,20 @@
   f.elements.fullname.addEventListener('focus', function () { if (!started) { started = true; TX.track('InitiateCheckout', { currency: 'EGP', value: calc().total }); } });
   f.elements.phone.addEventListener('change', maybeLead);
 
-  $('#next').addEventListener('click', function () {
-    setErr('name'); setErr('phone');
-    var name = val('fullname'), phone = digits(val('phone'));
-    var ok = true;
-    if (name.length < 3) { setErr('name', 'اكتب اسمك بالكامل'); ok = false; }
-    if (!okPhone(phone)) { setErr('phone', 'اكتب رقم موبايل صحيح من ١١ رقم'); ok = false; }
-    if (!ok) return;
-    maybeLead();
-    goStep(2);
-  });
-  $('#edit').addEventListener('click', function () { goStep(1); });
-  $('#back').addEventListener('click', function () { goStep(1); });
-
   f.addEventListener('submit', function (e) {
     e.preventDefault();
-    setErr('gov'); setErr('address'); $('#err').textContent = '';
+    ['name', 'phone', 'gov', 'address'].forEach(function (id) { setErr(id); });
+    $('#err').textContent = '';
     if (f.elements.hp.value || stock <= 0) return;
-    var gov = val('gov'), addr = val('address'), ok = true;
+    var name = val('fullname'), phone = digits(val('phone')), gov = val('gov'), addr = val('address'), ok = true;
+    if (name.length < 3) { setErr('name', 'اكتب اسمك بالكامل'); ok = false; }
+    if (!okPhone(phone)) { setErr('phone', 'اكتب رقم موبايل صحيح من ١١ رقم'); ok = false; }
     if (!gov) { setErr('gov', 'اختار المحافظة'); ok = false; }
     if (addr.length < 8) { setErr('address', 'اكتب العنوان بالتفصيل'); ok = false; }
     if (!ok) return;
+    maybeLead();
 
-    var name = val('fullname'), phone = digits(val('phone')), c = calc();
+    var c = calc();
     var id = 'TX' + Date.now().toString(36).toUpperCase();
     var coupon = c.o.coupon ? 'NEXT-' + Math.random().toString(36).slice(2, 7).toUpperCase() : '';
     var btn = $('#go'); btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';

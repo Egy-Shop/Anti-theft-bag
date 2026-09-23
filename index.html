@@ -253,54 +253,45 @@
 <section class="sec order-sec" id="order">
   <div class="wrap narrow">
     <h2>احجز شنطتك دلوقتي</h2>
-    <p class="order-sub">خطوتين بس. بتدفع للمندوب بعد ما تعاين الشنطة.</p>
+    <p class="order-sub">عاين واختار عرضك، وبتدفع للمندوب بعد ما تعاين الشنطة.</p>
 
-    <form id="f" class="form" novalidate>
+    <div class="offer-card">
       <div class="fhead">
         <img src="assets/img/clean-640.webp" width="60" height="60" alt="" loading="lazy">
         <div><b>شنطة كروس ضد السرقة</b><span id="formStock"></span></div>
       </div>
+      <fieldset class="offers" id="offers"><legend>اختار العرض</legend></fieldset>
+    </div>
 
-      <ol class="steps" aria-label="خطوات الطلب">
-        <li class="on" id="st1"><i>١</i> العرض وبياناتك</li>
-        <li id="st2"><i>٢</i> العنوان والتأكيد</li>
-      </ol>
+    <form id="f" class="form" novalidate>
+      <div class="fld"><label for="fullname">الاسم بالكامل</label><input id="fullname" name="fullname" autocomplete="name" enterkeyhint="next" placeholder="اكتب اسمك"><small class="ferr" id="e-name"></small></div>
+      <div class="fld"><label for="phone">رقم الموبايل</label><input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" enterkeyhint="next" placeholder="01xxxxxxxxx" maxlength="16"><small class="ferr" id="e-phone"></small></div>
+      <div class="fld"><label for="gov">المحافظة</label><select id="gov" name="gov" autocomplete="address-level1"><option value="">اختار المحافظة</option></select><small class="ferr" id="e-gov"></small></div>
+      <div class="fld"><label for="address">العنوان بالتفصيل</label><input id="address" name="address" autocomplete="street-address" enterkeyhint="done" placeholder="الشارع، رقم العمارة، الدور، الشقة"><small class="ferr" id="e-address"></small></div>
 
-      <div class="step" id="step1">
-        <fieldset class="offers" id="offers"><legend>اختار العرض</legend></fieldset>
-
-        <div class="addon" id="addonBox">
-          <label class="addon-row">
-            <input type="checkbox" id="addonChk">
-            <img src="assets/img/pb-clean-500.webp" width="44" height="44" alt="">
-            <b class="at">باور بانك G Star <small>١٠٠٠٠ مللي أمبير</small></b>
-            <span class="ap"><b id="addonPrice"></b><s id="addonOld"></s></span>
-          </label>
-          <p class="addon-note">عشان تشحن الموبايل من الشنطة فعليًا. الشحن هيبقى مجاني لو ضفته.</p>
-        </div>
-
-        <div class="fld"><label for="fullname">الاسم بالكامل</label><input id="fullname" name="fullname" autocomplete="name" enterkeyhint="next" placeholder="اكتب اسمك"><small class="ferr" id="e-name"></small></div>
-        <div class="fld"><label for="phone">رقم الموبايل</label><input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" enterkeyhint="next" placeholder="01xxxxxxxxx" maxlength="16"><small class="ferr" id="e-phone"></small></div>
-        <button class="btn btn-lg" type="button" id="next">التالي: العنوان</button>
-        <p class="fine">مفيش دفع دلوقتي.</p>
+      <div class="sumbox">
+        <div class="row"><span>سعر الشنطة</span><span id="sPrice"></span></div>
+        <div class="row" id="sAddonRow" hidden><span>باور بانك <button type="button" class="chip-x" id="sAddonRemove" aria-label="إزالة الباور بانك">×</button></span><span id="sAddonPrice"></span></div>
+        <div class="row"><span>الشحن</span><span id="sShip"></span></div>
+        <div class="row tot"><span>الإجمالي عند الاستلام</span><span id="sTotal"></span></div>
       </div>
 
-      <div class="step" id="step2" hidden>
-        <div class="recap"><div><span id="rcOffer"></span><b id="rcTotal"></b></div><button class="link" type="button" id="edit">تعديل</button></div>
-        <div class="fld"><label for="gov">المحافظة</label><select id="gov" name="gov" autocomplete="address-level1"><option value="">اختار المحافظة</option></select><small class="ferr" id="e-gov"></small></div>
-        <div class="fld"><label for="address">العنوان بالتفصيل</label><input id="address" name="address" autocomplete="street-address" enterkeyhint="done" placeholder="الشارع، رقم العمارة، الدور، الشقة"><small class="ferr" id="e-address"></small></div>
-        <div class="sumbox">
-          <div class="row"><span>سعر الشنطة</span><span id="sPrice"></span></div>
-          <div class="row"><span>الشحن</span><span id="sShip"></span></div>
-          <div class="row tot"><span>الإجمالي عند الاستلام</span><span id="sTotal"></span></div>
-        </div>
-        <div class="ferr form-err" id="err" role="alert"></div>
-        <button class="btn btn-lg" id="go" type="submit">تأكيد الطلب</button>
-        <button class="link back" type="button" id="back">رجوع</button>
-        <p class="fine">هنتصل بيك لتأكيد الطلب قبل الشحن. الدفع كاش عند الاستلام بعد ما تعاين الشنطة.</p>
-      </div>
+      <div class="ferr form-err" id="err" role="alert"></div>
+      <button class="btn btn-lg" id="go" type="submit">تأكيد الطلب</button>
+      <p class="fine">هنتصل بيك لتأكيد الطلب قبل الشحن. الدفع كاش عند الاستلام بعد ما تعاين الشنطة.</p>
       <input class="hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     </form>
+  </div>
+
+  <div class="toast" id="pbToast" hidden role="status">
+    <button class="toast-close" id="pbClose" type="button" aria-label="إغلاق">×</button>
+    <img src="assets/img/pb-clean-500.webp" width="46" height="46" alt="" loading="lazy">
+    <div class="toast-txt">
+      <b>حابب تضيف باور بانك مع الشنطة؟</b>
+      <span id="toastPrice"></span>
+      <a href="powerbank.html" class="toast-details">التفاصيل</a>
+    </div>
+    <button class="btn btn-sm" id="pbAdd" type="button">احصل على العرض</button>
   </div>
 </section>
 </main>
