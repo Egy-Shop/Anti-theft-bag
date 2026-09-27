@@ -164,6 +164,17 @@ h3{font-size:19px;line-height:1.5;font-weight:700;color:var(--ink);font-family:'
 .order-sec{background:var(--panel);border-top:1px solid var(--line-soft);scroll-margin-top:66px;position:relative}
 .order-sub{text-align:center;color:var(--dim);margin:-22px 0 26px;font-size:15px}
 .offer-card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;margin-bottom:16px}
+.mode-switch{display:flex;gap:8px;background:var(--panel2);border-radius:var(--rs);padding:4px;margin-bottom:16px}
+.mode-switch button{flex:1;border:0;background:none;color:var(--dim);font-family:'Cairo',sans-serif;font-weight:700;font-size:13.5px;padding:10px 6px;border-radius:calc(var(--rs) - 4px);cursor:pointer;transition:background .2s,color .2s}
+.mode-switch button.on{background:var(--copper);color:#161412}
+.mode-note{color:var(--dim);font-size:13px;margin-top:10px;text-align:center}
+.pb-teaser{display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap}
+.pb-teaser img{border-radius:var(--rs);border:1px solid var(--line);background:#fff;flex:none}
+.pb-teaser .trust{display:grid;gap:8px}
+.pb-teaser-note{text-align:center;color:var(--dim);font-size:14.5px;margin-top:22px}
+.pb-teaser-note a{color:var(--copper);text-decoration:underline}
+.pb-cross-note{text-align:center;color:var(--dim);font-size:13.5px;margin:-8px 0 16px}
+.pb-cross-note a{color:var(--copper);text-decoration:underline}
 .form{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px 22px;display:grid;gap:16px;overflow:hidden}
 .fhead{display:flex;gap:13px;align-items:center;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--line-soft)}
 .fhead img{width:56px;height:56px;object-fit:cover;border:1px solid var(--line);border-radius:var(--rs)}
@@ -214,6 +225,16 @@ legend{font-weight:700;font-size:14.5px;margin-bottom:9px;font-family:'Cairo',sa
 .toast-close{position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:50%;border:0;background:none;color:var(--faint);font-size:16px;line-height:1;cursor:pointer}
 .toast-close:hover{color:var(--ink)}
 @media(min-width:900px){.toast{left:auto;right:26px;bottom:26px}}
+
+/* إشعار "فلان طلب كذا" — بيانات حقيقية من نفس الشيت، بيظهر أعلى الصفحة عشان مايتعارضش مع الشريط الثابت أو توست الباور بانك */
+.notify{position:fixed;top:78px;left:14px;z-index:55;max-width:290px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:11px 34px 11px 12px;display:flex;align-items:center;gap:9px;box-shadow:0 14px 34px rgba(0,0,0,.4);opacity:0;transform:translateY(-8px);transition:opacity .3s var(--ease),transform .3s var(--ease);pointer-events:none}
+.notify.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.notify-dot{width:8px;height:8px;border-radius:50%;background:var(--copper);flex:none;animation:pulseDot 1.8s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(34,211,160,.5)}50%{box-shadow:0 0 0 6px rgba(34,211,160,0)}}
+.notify-txt{display:grid;gap:1px;min-width:0}
+.notify-txt b{font-size:13px;font-weight:700}
+.notify-txt span{color:var(--dim);font-size:12px}
+.notify .toast-close{top:50%;left:8px;transform:translateY(-50%)}
 
 /* الفوتر والشريط الثابت */
 .foot{background:var(--bg);border-top:1px solid var(--line-soft);text-align:center;padding:34px 0 118px;font-size:14px;color:var(--dim)}

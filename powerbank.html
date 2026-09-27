@@ -28,14 +28,14 @@
   </defs>
 </svg>
 
-<div class="topbar"><div class="wrap">إضافة اختيارية مع شنطة ترنديكس · شحن مجاني لما تضيفه</div></div>
+<div class="topbar"><div class="wrap">باور بانك يشحن موبايلك في أي وقت · شحن لكل المحافظات · الدفع عند الاستلام</div></div>
 
 <header class="hdr">
   <div class="wrap hdr-in">
     <a class="logo" href="index.html" aria-label="ترنديكس"><img src="assets/img/logo-mark.png" width="38" height="38" alt=""><span data-brand>ترنديكس</span></a>
     <div class="hdr-actions">
       <a class="icon-link" id="fbIcon" href="#" target="_blank" rel="noopener" aria-label="صفحتنا على فيسبوك" hidden><svg class="ic"><use href="#i-fb"/></svg></a>
-      <button class="btn btn-sm" type="button" data-add-addon>أضف للعرض</button>
+      <a class="btn btn-sm" href="#order">اطلب الآن</a>
     </div>
   </div>
 </header>
@@ -60,12 +60,12 @@
     </div>
 
     <div class="hero-copy">
-      <p class="eyebrow">إضافة اختيارية مع الشنطة</p>
+      <p class="eyebrow">منتج مستقل</p>
       <h1>باور بانك G Star <span class="hl">10000 مللي أمبير</span></h1>
       <p class="lead">يكفي 2-3 شحنات لموبايلك، بشاشة رقمية بتوريك نسبة الشحن، ومنافذ بتشحن أكتر من جهاز في نفس الوقت.</p>
       <div class="price"><b id="price"></b><s id="old"></s></div>
-      <p class="shipnote">شحن مجاني لما تضيفه مع أي عرض من عروض الشنطة</p>
-      <button class="btn btn-lg" type="button" data-add-addon>أضف للعرض</button>
+      <p class="shipnote" id="shipnote"></p>
+      <a class="btn btn-lg" href="#order">اطلب الآن</a>
       <ul class="trust">
         <li><i><svg class="ic"><use href="#i-check"/></svg></i>يتوافق مع Android و iPhone</li>
         <li><i><svg class="ic"><use href="#i-check"/></svg></i>حماية كاملة من الشحن الزائد والسخونة</li>
@@ -103,6 +103,40 @@
     </dl>
   </div>
 </section>
+
+<!-- ============ الطلب ============ -->
+<section class="sec order-sec" id="order">
+  <div class="wrap narrow">
+    <h2>اطلب الباور بانك دلوقتي</h2>
+    <p class="order-sub">بتدفع للمندوب بعد ما تعاين المنتج.</p>
+
+    <div class="offer-card">
+      <div class="fhead">
+        <img src="assets/powerbank/pb-front-thumb.webp" width="60" height="60" alt="" loading="lazy">
+        <div><b>باور بانك G Star 10000mAh</b><span id="pbNote">قطعة واحدة</span></div>
+      </div>
+    </div>
+    <p class="pb-cross-note">لو حابب توفر أكتر، اطلب الباور بانك مع شنطة كروس في عرض واحد <a href="index.html#order">من هنا</a>.</p>
+
+    <form id="f" class="form" novalidate>
+      <div class="fld"><label for="fullname">الاسم بالكامل</label><input id="fullname" name="fullname" autocomplete="name" enterkeyhint="next" placeholder="اكتب اسمك"><small class="ferr" id="e-name"></small></div>
+      <div class="fld"><label for="phone">رقم الموبايل</label><input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" enterkeyhint="next" placeholder="01xxxxxxxxx" maxlength="16"><small class="ferr" id="e-phone"></small></div>
+      <div class="fld"><label for="gov">المحافظة</label><select id="gov" name="gov" autocomplete="address-level1"><option value="">اختار المحافظة</option></select><small class="ferr" id="e-gov"></small></div>
+      <div class="fld"><label for="address">العنوان بالتفصيل</label><input id="address" name="address" autocomplete="street-address" enterkeyhint="done" placeholder="الشارع، رقم العمارة، الدور، الشقة"><small class="ferr" id="e-address"></small></div>
+
+      <div class="sumbox">
+        <div class="row"><span>السعر</span><span id="sPrice"></span></div>
+        <div class="row"><span>الشحن</span><span id="sShip"></span></div>
+        <div class="row tot"><span>الإجمالي عند الاستلام</span><span id="sTotal"></span></div>
+      </div>
+
+      <div class="ferr form-err" id="err" role="alert"></div>
+      <button class="btn btn-lg" id="go" type="submit">تأكيد الطلب</button>
+      <p class="fine">هنتصل بيك لتأكيد الطلب قبل الشحن. الدفع كاش عند الاستلام بعد ما تعاين المنتج.</p>
+      <input class="hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </form>
+  </div>
+</section>
 </main>
 
 <footer class="foot">
@@ -114,8 +148,8 @@
 </footer>
 
 <div class="sticky" id="sticky">
-  <div><small>سعر الإضافة</small><b id="stickyPrice"></b></div>
-  <button class="btn" type="button" data-add-addon>أضف للعرض</button>
+  <div><small>الإجمالي شامل الشحن</small><b id="stickyPrice"></b></div>
+  <a class="btn" href="#order">اطلب الآن</a>
 </div>
 
 <script src="config.js"></script>
@@ -128,23 +162,25 @@
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
   var num = function (n) { return Number(n).toLocaleString('ar-EG'); };
   var fmt = function (n) { return num(n) + ' ج.م'; };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var digits = function (s) { return s.replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); };
+  var okPhone = function (p) { return /^01[0125]\d{8}$/.test(p); };
+  var q = new URLSearchParams(location.search);
+  var src = ['utm_source', 'utm_campaign', 'utm_content'].map(function (k) { return q.get(k); }).filter(Boolean).join('|') || (q.get('fbclid') ? 'fb' : 'direct');
 
   $$('[data-brand]').forEach(function (e) { e.textContent = C.brand; });
   if (C.facebookUrl) { ['#fFb', '#fbIcon'].forEach(function (s) { var a = $(s); a.href = C.facebookUrl; a.hidden = false; }); }
 
-  if (!addon) { document.body.innerHTML = '<p style="padding:40px;text-align:center">الإضافة دي مش متاحة حاليًا.</p>'; return; }
+  if (!addon) { document.body.innerHTML = '<p style="padding:40px;text-align:center">المنتج ده مش متاح حاليًا.</p>'; return; }
 
+  var total = addon.price + (addon.ship || 0);
   $('#price').textContent = fmt(addon.price);
   if (addon.old) $('#old').textContent = fmt(addon.old);
-  $('#stickyPrice').textContent = fmt(addon.price);
-
-  $$('[data-add-addon]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      try { localStorage.setItem('tx_addon_wanted', '1'); } catch (x) {}
-      TX.track('AddToCart', { currency: 'EGP', value: addon.price, content_name: addon.name || 'باور بانك' });
-      location.href = 'index.html#order';
-    });
-  });
+  $('#shipnote').textContent = addon.ship ? '+ شحن ' + fmt(addon.ship) : 'شحن مجاني';
+  $('#sPrice').textContent = fmt(addon.price);
+  $('#sShip').textContent = addon.ship ? fmt(addon.ship) : 'مجاني';
+  $('#sTotal').textContent = fmt(total);
+  $('#stickyPrice').textContent = fmt(total);
 
   /* ---------- معرض الصور ---------- */
   var slides = $$('.slide'), thumbs = $$('#thumbs button'), box = $('#slides');
@@ -159,13 +195,57 @@
     }, { root: box, threshold: .6 });
     slides.forEach(function (s) { gio.observe(s); });
   }
-
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) { $('#sticky').classList.toggle('off', es[0].isIntersecting); }, { threshold: .1 }).observe($('.hero .btn-lg'));
+    new IntersectionObserver(function (es) { $('#sticky').classList.toggle('off', es[0].isIntersecting); }, { threshold: .12 }).observe($('#order'));
   }
+
+  /* ---------- الفورم ---------- */
+  var GOV = 'القاهرة الجيزة الإسكندرية القليوبية الشرقية الدقهلية الغربية المنوفية البحيرة كفر_الشيخ دمياط بورسعيد الإسماعيلية السويس الفيوم بني_سويف المنيا أسيوط سوهاج قنا الأقصر أسوان البحر_الأحمر الوادي_الجديد مطروح شمال_سيناء جنوب_سيناء'.split(' ');
+  $('#gov').insertAdjacentHTML('beforeend', GOV.map(function (g) { g = g.replace('_', ' '); return '<option>' + g + '</option>'; }).join(''));
+
+  var f = $('#f');
+  function setErr(id, msg) { $('#e-' + id).textContent = msg || ''; }
+  function val(id) { return f.elements[id].value.trim(); }
+
+  var started = false, leadSent = false;
+  function maybeLead() {
+    var p = digits(val('phone'));
+    if (okPhone(p) && !leadSent) { leadSent = true; TX.send({ type: 'lead', name: val('fullname'), phone: p, src: src }); TX.track('Lead'); }
+  }
+  f.elements.fullname.addEventListener('focus', function () { if (!started) { started = true; TX.track('InitiateCheckout', { currency: 'EGP', value: total }); } });
+  f.elements.phone.addEventListener('change', maybeLead);
+
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    ['name', 'phone', 'gov', 'address'].forEach(function (id) { setErr(id); });
+    $('#err').textContent = '';
+    if (f.elements.hp.value) return;
+    var name = val('fullname'), phone = digits(val('phone')), gov = val('gov'), addr = val('address'), ok = true;
+    if (name.length < 3) { setErr('name', 'اكتب اسمك بالكامل'); ok = false; }
+    if (!okPhone(phone)) { setErr('phone', 'اكتب رقم موبايل صحيح من ١١ رقم'); ok = false; }
+    if (!gov) { setErr('gov', 'اختار المحافظة'); ok = false; }
+    if (addr.length < 8) { setErr('address', 'اكتب العنوان بالتفصيل'); ok = false; }
+    if (!ok) return;
+    maybeLead();
+
+    var id = 'TX' + Date.now().toString(36).toUpperCase();
+    var btn = $('#go'); btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';
+    var offerLabel = addon.name || 'باور بانك (لوحده)';
+
+    TX.send({ type: 'order', id: id, name: name, phone: phone, gov: gov, address: addr, offer: offerLabel, qty: 1, addon: 0, ship: addon.ship || 0, total: total, coupon: '', src: src })
+      .then(function () {
+        var p = new URLSearchParams({ id: id, total: total, offer: offerLabel, phone: phone });
+        location.href = 'thanks.html?' + p.toString();
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = 'تأكيد الطلب';
+        $('#err').textContent = 'حصلت مشكلة في الاتصال. تأكد من النت وجرّب تاني.';
+      });
+  });
 
   TX.track('ViewContent', { content_name: addon.name || 'باور بانك', currency: 'EGP', value: addon.price });
 })();
 </script>
 </body>
 </html>
+

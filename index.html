@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ترنديكس | شنطة كروس بقفل سري ومخرج USB - الدفع عند الاستلام</title>
+<title>ترنديكس | عرض شنطة كروس ضد السرقة + باور بانك هدية - الدفع عند الاستلام</title>
 <meta name="description" content="شنطة كروس ترنديكس بقفل برقم سري ومخرج USB وخامة مقاومة للمياه. معاينة قبل الدفع وضمان استبدال واسترجاع ١٤ يوم. شحن لكل محافظات مصر.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#131211">
@@ -20,8 +20,8 @@
 <meta property="og:site_name" content="Trendex - ترنديكس">
 <meta property="og:locale" content="ar_EG">
 <meta property="og:url" content="https://egy-shop.github.io/Anti-theft-bag/">
-<meta property="og:title" content="ترنديكس | شنطة كروس بقفل سري ومخرج USB">
-<meta property="og:description" content="قفل برقم سري، مخرج USB، خامة مقاومة للمياه. معاينة قبل الدفع وضمان استبدال واسترجاع.">
+<meta property="og:title" content="ترنديكس | عرض شنطة كروس + باور بانك هدية">
+<meta property="og:description" content="شنطة كروس ضد السرقة بقفل سري + باور بانك 10000 مللي أمبير في عرض واحد، شحن مجاني، دفع عند الاستلام.">
 <meta property="og:image" content="https://egy-shop.github.io/Anti-theft-bag/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -93,9 +93,9 @@
     </div>
 
     <div class="hero-copy">
-      <p class="eyebrow">شنطة كروس ضد السرقة</p>
-      <h1>شنطتك مقفولة برقم سري <span class="hl">ومعاها مخرج USB للشحن</span></h1>
-      <p class="lead">شنطة كروس وزنها حوالي ٤٥٠ جرام، خامتها مقاومة للمياه، وتكفي موبايلك ومحفظتك ومفاتيحك.</p>
+      <p class="eyebrow">عرض شنطة + باور بانك</p>
+      <h1>شنطتك مقفولة برقم سري <span class="hl">ومعاها باور بانك يشحنها</span></h1>
+      <p class="lead">شنطة كروس ضد السرقة بقفل سري وخامة مقاومة للمياه، مع باور بانك 10000 مللي أمبير هدية في نفس العرض — شحن مجاني.</p>
       <div class="price"><b id="price"></b><s id="old"></s></div>
       <p class="shipnote" id="shipnote"></p>
       <a class="btn btn-lg" href="#order" data-cta>اطلب الآن والدفع عند الاستلام</a>
@@ -249,18 +249,42 @@
   </div>
 </section>
 
+<!-- ============ الباور بانك اللي جوه العرض ============ -->
+<section class="sec panel">
+  <div class="wrap narrow">
+    <p class="eyebrow">هدية العرض</p>
+    <h2>باور بانك G Star 10000 مللي أمبير</h2>
+    <div class="pb-teaser">
+      <img src="assets/powerbank/pb-front-800.webp" width="140" height="140" alt="باور بانك G Star" loading="lazy">
+      <ul class="trust">
+        <li><i><svg class="ic"><use href="#i-check"/></svg></i>يكفي 2-3 شحنات لموبايلك</li>
+        <li><i><svg class="ic"><use href="#i-check"/></svg></i>شاشة رقمية توضح نسبة الشحن</li>
+        <li><i><svg class="ic"><use href="#i-check"/></svg></i>يتوافق مع Android و iPhone</li>
+      </ul>
+    </div>
+    <p class="pb-teaser-note">بييجي هدية مع عروض الشنطة فوق. عايز تطلبه لوحده بس؟ <a href="powerbank.html">شوف تفاصيله الكاملة من هنا</a>.</p>
+  </div>
+</section>
+
 <!-- ============ الطلب (خطوتين) ============ -->
 <section class="sec order-sec" id="order">
   <div class="wrap narrow">
-    <h2>احجز شنطتك دلوقتي</h2>
+    <h2>احجز عرضك دلوقتي</h2>
     <p class="order-sub">عاين واختار عرضك، وبتدفع للمندوب بعد ما تعاين الشنطة.</p>
 
     <div class="offer-card">
       <div class="fhead">
         <img src="assets/img/clean-640.webp" width="60" height="60" alt="" loading="lazy">
-        <div><b>شنطة كروس ضد السرقة</b><span id="formStock"></span></div>
+        <div><b id="fheadTitle">شنطة + باور بانك</b><span id="formStock"></span></div>
       </div>
+
+      <div class="mode-switch" role="tablist" aria-label="نوع الطلب">
+        <button type="button" class="on" id="modeBundle" role="tab" aria-selected="true">الشنطة + الباور بانك</button>
+        <button type="button" id="modeBagOnly" role="tab" aria-selected="false">الشنطة لوحدها</button>
+      </div>
+
       <fieldset class="offers" id="offers"><legend>اختار العرض</legend></fieldset>
+      <p class="mode-note" id="modeNote"></p>
     </div>
 
     <form id="f" class="form" novalidate>
@@ -270,8 +294,7 @@
       <div class="fld"><label for="address">العنوان بالتفصيل</label><input id="address" name="address" autocomplete="street-address" enterkeyhint="done" placeholder="الشارع، رقم العمارة، الدور، الشقة"><small class="ferr" id="e-address"></small></div>
 
       <div class="sumbox">
-        <div class="row"><span>سعر الشنطة</span><span id="sPrice"></span></div>
-        <div class="row" id="sAddonRow" hidden><span>باور بانك <button type="button" class="chip-x" id="sAddonRemove" aria-label="إزالة الباور بانك">×</button></span><span id="sAddonPrice"></span></div>
+        <div class="row"><span>سعر الطلب</span><span id="sPrice"></span></div>
         <div class="row"><span>الشحن</span><span id="sShip"></span></div>
         <div class="row tot"><span>الإجمالي عند الاستلام</span><span id="sTotal"></span></div>
       </div>
@@ -282,19 +305,17 @@
       <input class="hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     </form>
   </div>
-
-  <div class="toast" id="pbToast" hidden role="status">
-    <button class="toast-close" id="pbClose" type="button" aria-label="إغلاق">×</button>
-    <img src="assets/powerbank/pb-front-thumb.webp" width="46" height="46" alt="" loading="lazy">
-    <div class="toast-txt">
-      <b>حابب تضيف باور بانك مع الشنطة؟</b>
-      <span id="toastPrice"></span>
-      <a href="powerbank.html" class="toast-details">التفاصيل</a>
-    </div>
-    <button class="btn btn-sm" id="pbAdd" type="button">احصل على العرض</button>
-  </div>
 </section>
 </main>
+
+<div class="notify" id="orderNotify" hidden role="status">
+  <span class="notify-dot"></span>
+  <div class="notify-txt">
+    <b id="notifyName"></b>
+    <span id="notifyDetail"></span>
+  </div>
+  <button class="toast-close" id="notifyClose" type="button" aria-label="إغلاق">×</button>
+</div>
 
 <footer class="foot">
   <div class="wrap">

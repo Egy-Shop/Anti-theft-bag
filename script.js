@@ -24,19 +24,13 @@
   requestAnimationFrame(function () { $('#stockBar').style.width = Math.max(4, stock / total * 100) + '%'; });
 
   /* ---------- الأسعار ---------- */
-  var offers = C.offers, o0 = offers[0], addon = C.addon;
+  var offers = C.offers, o0 = offers[0];
   var pct = function (o) { return o.old ? Math.round((1 - o.price / o.old) * 100) : 0; };
   $('#price').textContent = fmt(o0.price);
   $('#old').textContent = o0.old ? fmt(o0.old) : '';
   if (pct(o0)) { var bd = $('#discBadge'); bd.textContent = 'خصم ' + num(pct(o0)) + '٪'; bd.hidden = false; }
-  var free = offers.filter(function (o) { return !o.ship; })[0];
-  var freeTxt = free ? (free.qty === 2 ? 'قطعتين' : num(free.qty) + ' قطع') : '';
-  $('#shipnote').textContent = o0.ship ? '+ شحن ' + fmt(o0.ship) + (free ? ' · مجاني لو طلبت ' + freeTxt + ' أو أكتر' : '') : 'شحن مجاني';
-  $('#faqShip').textContent = o0.ship ? 'الشحن ' + fmt(o0.ship) + ' للقطعة الواحدة' + (free ? '، ومجاني لو طلبت ' + freeTxt + ' أو أكتر، وكمان مجاني لو ضفت باور بانك.' : '.') : 'الشحن مجاني.';
-
-  if (addon) {
-    $('#toastPrice').textContent = fmt(addon.price) + (addon.old ? ' بدل ' + fmt(addon.old) : '') + (addon.freeShipWithIt ? ' + شحن مجاني' : '');
-  }
+  $('#shipnote').textContent = o0.ship ? '+ شحن ' + fmt(o0.ship) : 'شحن مجاني';
+  $('#faqShip').textContent = 'شحن مجاني على عروض الشنطة + الباور بانك. لو طلبت الشنطة لوحدها، الشحن ' + fmt(C.bagOnlyOffers[0].ship) + ' للقطعة الواحدة، ومجاني لو طلبت قطعتين أو أكتر.';
 
   /* ---------- العداد: ٢٤ ساعة لكل زائر، بيتجدد لو رجع بعد ما تنتهي ---------- */
   var offerHours = C.offerHours || 24, offerMs = offerHours * 36e5, timer;
@@ -95,68 +89,51 @@
   var GOV = 'القاهرة الجيزة الإسكندرية القليوبية الشرقية الدقهلية الغربية المنوفية البحيرة كفر_الشيخ دمياط بورسعيد الإسماعيلية السويس الفيوم بني_سويف المنيا أسيوط سوهاج قنا الأقصر أسوان البحر_الأحمر الوادي_الجديد مطروح شمال_سيناء جنوب_سيناء'.split(' ');
   $('#gov').insertAdjacentHTML('beforeend', GOV.map(function (g) { g = g.replace('_', ' '); return '<option>' + g + '</option>'; }).join(''));
 
-  var f = $('#f'), firstOk = -1;
-  $('#offers').insertAdjacentHTML('beforeend', offers.map(function (o, i) {
-    var dis = o.qty > stock;
-    if (!dis && firstOk < 0) firstOk = i;
-    return '<label class="offer' + (dis ? ' dis' : '') + '"><input type="radio" name="offer" value="' + i + '"' + (dis ? ' disabled' : '') + '><span class="dot"></span>' +
-      '<span class="t"><span>' + esc(o.label) + '</span>' + (o.badge ? '<em>' + esc(o.badge) + '</em>' : '') + '</span>' +
-      '<span class="p"><b>' + fmt(o.price) + '</b>' + (o.old ? '<s>' + fmt(o.old) + '</s>' : '') + '</span></label>';
-  }).join(''));
-  var radios = $$('[name=offer]');
-  if (firstOk >= 0) radios[firstOk].checked = true;
-  var sel = function () { var r = radios.filter(function (x) { return x.checked; })[0]; return offers[r ? +r.value : 0]; };
-  var addonOn = false, addonPre = false;
-  if (addon) {
-    try {
-      if (localStorage.getItem('tx_addon_wanted') === '1') { addonOn = true; addonPre = true; localStorage.removeItem('tx_addon_wanted'); }
-    } catch (x) {}
+  var f = $('#f'), firstOk = -1, radios = [], bundleMode = true;
+
+  function renderOffers(list) {
+    $('#offers').innerHTML = '';
+    firstOk = -1;
+    $('#offers').insertAdjacentHTML('beforeend', list.map(function (o, i) {
+      var dis = o.qty > stock;
+      if (!dis && firstOk < 0) firstOk = i;
+      return '<label class="offer' + (dis ? ' dis' : '') + '"><input type="radio" name="offer" value="' + i + '"' + (dis ? ' disabled' : '') + '><span class="dot"></span>' +
+        '<span class="t"><span>' + esc(o.label) + '</span>' + (o.badge ? '<em>' + esc(o.badge) + '</em>' : '') + '</span>' +
+        '<span class="p"><b>' + fmt(o.price) + '</b>' + (o.old ? '<s>' + fmt(o.old) + '</s>' : '') + '</span></label>';
+    }).join(''));
+    radios = $$('[name=offer]');
+    if (firstOk >= 0) radios[firstOk].checked = true;
+    radios.forEach(function (r) { r.addEventListener('change', upd); });
   }
+  var sel = function () { var list = bundleMode ? C.offers : C.bagOnlyOffers; var r = radios.filter(function (x) { return x.checked; })[0]; return list[r ? +r.value : 0]; };
 
   function calc() {
-    var o = sel(), on = addon && addonOn;
-    var ship = o.ship;
-    if (on && addon.freeShipWithIt) ship = 0;
-    var itemsTotal = o.price + (on ? addon.price : 0);
-    return { o: o, addonOn: on, ship: ship, itemsTotal: itemsTotal, total: itemsTotal + ship };
+    var o = sel();
+    return { o: o, ship: o.ship, total: o.price + o.ship };
   }
   function upd() {
     radios.forEach(function (r) { r.closest('.offer').classList.toggle('on', r.checked); });
     var c = calc();
     $('#sPrice').textContent = fmt(c.o.price);
-    $('#sAddonRow').hidden = !c.addonOn;
-    if (c.addonOn) $('#sAddonPrice').textContent = fmt(addon.price);
     $('#sShip').textContent = c.ship ? fmt(c.ship) : 'مجاني';
     $('#sTotal').textContent = fmt(c.total);
     $('#stickyPrice').textContent = fmt(c.total);
   }
-  radios.forEach(function (r) { r.addEventListener('change', upd); });
-  upd();
-  if (stock <= 0) { $('#go').disabled = true; $('#go').textContent = 'الكمية خلصت حاليًا'; }
-
-  /* ---------- نوتفكيشن الباور بانك: بتظهر مرة واحدة بهدوء لما العميل يوصل لفورم الطلب ---------- */
-  if (addon) {
-    var toast = $('#pbToast'), pbShown = addonPre;
-    function showToast() {
-      if (pbShown || addonOn) return;
-      pbShown = true;
-      toast.hidden = false;
-      requestAnimationFrame(function () { toast.classList.add('show'); });
-    }
-    function hideToast() {
-      toast.classList.remove('show');
-      setTimeout(function () { toast.hidden = true; }, 250);
-    }
-    if ('IntersectionObserver' in window) {
-      var pbIo = new IntersectionObserver(function (es) {
-        if (es[0].isIntersecting) { showToast(); pbIo.disconnect(); }
-      }, { threshold: .2 });
-      pbIo.observe($('#order'));
-    }
-    $('#pbAdd').addEventListener('click', function () { addonOn = true; hideToast(); upd(); });
-    $('#pbClose').addEventListener('click', hideToast);
-    $('#sAddonRemove').addEventListener('click', function () { addonOn = false; upd(); });
+  function setMode(bundle) {
+    bundleMode = bundle;
+    $('#modeBundle').classList.toggle('on', bundle);
+    $('#modeBagOnly').classList.toggle('on', !bundle);
+    $('#modeBundle').setAttribute('aria-selected', String(bundle));
+    $('#modeBagOnly').setAttribute('aria-selected', String(!bundle));
+    $('#fheadTitle').textContent = bundle ? 'شنطة + باور بانك' : 'الشنطة لوحدها';
+    $('#modeNote').textContent = bundle ? 'باور بانك 10000 مللي أمبير هدية مع أي عرض من دول.' : 'من غير باور بانك. عايز تضيفه؟ دوس "الشنطة + الباور بانك" فوق.';
+    renderOffers(bundle ? C.offers : C.bagOnlyOffers);
+    upd();
   }
+  $('#modeBundle').addEventListener('click', function () { setMode(true); });
+  $('#modeBagOnly').addEventListener('click', function () { setMode(false); });
+  setMode(true);
+  if (stock <= 0) { $('#go').disabled = true; $('#go').textContent = 'الكمية خلصت حاليًا'; }
 
   function setErr(id, msg) { $('#e-' + id).textContent = msg || ''; }
   function val(id) { return f.elements[id].value.trim(); }
@@ -187,10 +164,9 @@
     var coupon = c.o.coupon ? 'NEXT-' + Math.random().toString(36).slice(2, 7).toUpperCase() : '';
     var btn = $('#go'); btn.disabled = true; btn.textContent = 'جاري تسجيل الطلب…';
 
-    var offerLabel = c.o.label + (c.addonOn ? ' + ' + (addon.name || 'باور بانك') : '');
-    TX.send({ type: 'order', id: id, name: name, phone: phone, gov: gov, address: addr, offer: offerLabel, qty: c.o.qty, addon: c.addonOn ? 1 : 0, ship: c.ship, total: c.total, coupon: coupon, src: src })
+    TX.send({ type: 'order', id: id, name: name, phone: phone, gov: gov, address: addr, offer: c.o.label, qty: c.o.qty, addon: bundleMode ? 1 : 0, ship: c.ship, total: c.total, coupon: coupon, src: src })
       .then(function () {
-        var p = new URLSearchParams({ id: id, total: c.total, offer: offerLabel, phone: phone });
+        var p = new URLSearchParams({ id: id, total: c.total, offer: c.o.label, phone: phone });
         if (coupon) p.set('coupon', coupon);
         location.href = 'thanks.html?' + p.toString();
       })
@@ -231,4 +207,35 @@
   }
   $$('[data-cta]').forEach(function (a) { a.addEventListener('click', function () { TX.track('AddToCart', { currency: 'EGP', value: o0.price }); }); });
   TX.track('ViewContent', { content_name: 'شنطة كروس ضد السرقة', currency: 'EGP', value: o0.price });
+
+  /* ---------- إشعار "فلان طلب كذا": أوردرات حقيقية من الشيت بس، مفيش أسماء وهمية ---------- */
+  if (C.appsScriptUrl) {
+    fetch(C.appsScriptUrl + '?action=recent').then(function (r) { return r.json(); }).then(function (list) {
+      if (!Array.isArray(list) || !list.length) return;
+      var box = $('#orderNotify'), nameEl = $('#notifyName'), detailEl = $('#notifyDetail');
+      var i = 0, stopped = false, timer;
+      function detailText(o) {
+        var d = 'طلب ' + o.offer + (o.addon ? ' وباور بانك' : '');
+        return o.gov ? d + ' — ' + o.gov : d;
+      }
+      function showNext() {
+        if (stopped) return;
+        var o = list[i % list.length]; i++;
+        nameEl.textContent = o.name;
+        detailEl.textContent = detailText(o);
+        box.hidden = false;
+        requestAnimationFrame(function () { box.classList.add('show'); });
+        setTimeout(function () {
+          box.classList.remove('show');
+          setTimeout(function () { box.hidden = true; if (!stopped) timer = setTimeout(showNext, 4500); }, 300);
+        }, 4500);
+      }
+      $('#notifyClose').addEventListener('click', function () {
+        stopped = true; clearTimeout(timer);
+        box.classList.remove('show');
+        setTimeout(function () { box.hidden = true; }, 300);
+      });
+      timer = setTimeout(showNext, 5000);
+    }).catch(function () {});
+  }
 })();
